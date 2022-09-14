@@ -26,20 +26,25 @@ import {
 } from "@commercelayer/react-components"
 
 export default function Home({ data }) {
-  const { products, setProducts, setAllData, token } =
+  const { products, setProducts, setAllData, token, setSubCategories } =
     useContext(ProductContext)
 
   const [origin, setOrigin] = useState("http://localhost:3000")
 
   useEffect(() => {
-    setProducts(data.categories[0].products)
+    setSubCategories(data.subCategories)
+    data.subCategories.map((subCategory) => {
+      if (subCategory.name.search("all") !== -1) {
+        setProducts(subCategory.products)
+      }
+    })
+
     setAllData(data)
   }, [])
 
   useEffect(() => {
     setOrigin(location.origin)
   }, [])
-
   return (
     <CommerceLayer
       accessToken={token}
@@ -94,53 +99,13 @@ export default function Home({ data }) {
   )
 }
 
-// export async function getStaticProps() {
-//   const heads = await client.fetch(`*[_type == "head"]{
-//     id,
-//     name,
-//     url,
-//     'categories': categories[]->{
-//       name,
-//       label,
-//       slug,
-//       description,
-//       'products': products[]->{
-//         name,
-//         description,
-//         color,
-//         price,
-//         currency,
-//         reference,
-//         'images': images[]->{
-//           name,
-//           description,
-//           'url': images.asset->url
-//       }
-//     }
-//   }
-// }`)
-
-//   let filtered = {}
-
-//   if (heads.length > 0) {
-//     filtered = heads.filter(
-//       (head) => head.id === process.env.NEXT_PUBLIC_HEAD_ID
-//     )
-//   }
-
-//   return {
-//     props: {
-//       data: filtered[0],
-//     },
-//   }
-// }
-
 export async function getServerSideProps() {
   const query = `*[_type == "head"]{
     id,
     name,
     url,
     'categories': categories[]->{
+    'subCategories': subCategories[]->{
       name,
       label,
       slug,
@@ -157,7 +122,7 @@ export async function getServerSideProps() {
           description,
           'url': images.asset->url
       }
-    }
+    }}
   }
 }`
   const heads = await client.fetch(query)
@@ -172,7 +137,7 @@ export async function getServerSideProps() {
 
   return {
     props: {
-      data: filtered[0],
+      data: filtered[0].categories[0],
     },
   }
 }

@@ -15,13 +15,7 @@ const sortOptions = [
     { name: 'Price: Low to High', href: '#', current: false },
     { name: 'Price: High to Low', href: '#', current: false },
 ]
-const subCategories = [
-    { name: 'Totes', href: '#' },
-    { name: 'Backpacks', href: '#' },
-    { name: 'Travel Bags', href: '#' },
-    { name: 'Hip Bags', href: '#' },
-    { name: 'Laptop Sleeves', href: '#' },
-]
+
 const filters = [
     {
         id: 'color',
@@ -66,7 +60,18 @@ function classNames(...classes) {
 
 export const Layout = ({ children }) => {
     const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
-    const { allData } = useContext(ProductContext)
+    const {
+        setProducts,
+        allData,
+        subCategories,
+    } = useContext(ProductContext)
+
+    const setNewProducts = (subCategoryName) => {
+        console.log("Name ", subCategoryName)
+        let filtered = subCategories.filter(cat => cat.name === subCategoryName)
+        console.log("Filtered ", filtered)
+        setProducts(filtered[0].products)
+    }
 
 
     return (
@@ -248,7 +253,7 @@ export const Layout = ({ children }) => {
                                 <ul role="list" className="space-y-4 border-b border-gray-200 pb-6 text-sm font-medium text-gray-900">
                                     {subCategories.map((category) => (
                                         <li key={category.name}>
-                                            <a href={category.href}>{category.name}</a>
+                                            <span className='cursor-pointer' onClick={() => setNewProducts(category.name)}>{category.label}</span>
                                         </li>
                                     ))}
                                 </ul>
